@@ -5,6 +5,8 @@ import java.util.*;
  * CS108 Stanford.
  */
 public class Sudoku {
+
+	private int [][] matrix;
 	// Provided grid data for main/testing
 	// The instance variable strategy is up to you.
 	
@@ -46,15 +48,70 @@ public class Sudoku {
 	"6 0 0 0 2 1 0 4 0",
 	"0 0 0 5 3 0 9 0 0",
 	"0 3 0 0 0 0 0 5 1");
-	
+	public static final  int[][] myGrid = Sudoku.stringsToGrid(
+			"3 7 0 0 0 0 0 8 0",
+			"0 0 1 0 9 3 0 0 0",
+			"0 4 0 7 8 0 0 0 3",
+			"0 9 3 8 0 0 0 1 2",
+			"0 0 0 0 4 0 0 0 0",
+			"5 2 0 0 0 6 7 9 0",
+			"6 0 0 0 0 1 0 4 0",
+			"0 0 0 0 0 0 9 0 0",
+			"0 3 0 0 0 0 0 5 1");
 	
 	public static final int SIZE = 9;  // size of the whole 9x9 puzzle
 	public static final int PART = 3;  // size of each 3x3 part
 	public static final int MAX_SOLUTIONS = 100;
-	
+
+	/**
+	 * Spot class which contains every king of information about the grid spot.
+	 * */
+	public class Spot implements Comparable{
+		private final int x;
+		private final int y;
+
+		public Spot (int row,int col){
+			x = row;
+			y = col;
+		}
+		public void set(int value){
+			matrix[x][y] = value;
+		}
+		/**
+		 * This function returns the hashset of integers which may be valid in this spot.
+		 * */
+		public HashSet<Integer> validCombinations(){
+			HashSet<Integer> answer = new HashSet<>();
+			for(int i = 1;i < 10; i++){
+				answer.add(i);
+			}
+			for(int i = 0; i < SIZE; i++){
+				answer.remove(matrix[x][i]);
+			}
+			for(int i = 0; i < SIZE; i++){
+				answer.remove(matrix[i][y]);
+			}
+			int upperLeftX = (x / 3) * 3;
+			int upperLeftY = (y / 3) * 3;
+
+			for(int i = upperLeftX; i < upperLeftX + 3;i++){
+				for(int j = upperLeftY; j< upperLeftY + 3;j++){
+					answer.remove(matrix[i][j]);
+				}
+			}
+			return answer;
+		}
+		@Override
+		public int compareTo(Object sp){
+			Spot cur = (Spot) sp;
+			return this.validCombinations().size() - cur.validCombinations().size();
+		}
+	}
+
 	// Provided various static utility methods to
 	// convert data formats to int[][] grid.
-	
+
+
 	/**
 	 * Returns a 2-d grid parsed from strings, one string per row.
 	 * The "..." is a Java 5 feature that essentially
@@ -125,7 +182,7 @@ public class Sudoku {
 	public static void main(String[] args) {
 		Sudoku sudoku;
 		sudoku = new Sudoku(hardGrid);
-		
+
 		System.out.println(sudoku); // print the raw problem
 		int count = sudoku.solve();
 		System.out.println("solutions:" + count);
@@ -133,14 +190,29 @@ public class Sudoku {
 		System.out.println(sudoku.getSolutionText());
 	}
 	
-	
-	
-
+	private ArrayList<Spot> spots;
+	private int[][] sudokuSolution;
+	private int numSolutions;
+	private long codeTime;
 	/**
 	 * Sets up based on the given ints.
 	 */
 	public Sudoku(int[][] ints) {
-		// YOUR CODE HERE
+		matrix = ints;
+		sudokuSolution = new int[SIZE][SIZE];
+		makeSpots();
+	}
+	private void makeSpots(){
+		spots = new ArrayList<>();
+		for(int i = 0; i < SIZE; i++){
+			for(int j = 0; j < SIZE; j++){
+				if(matrix[i][j] == 0){
+					Spot cur = new Spot(i,j);
+					spots.add(cur);
+				}
+			}
+		}
+		Collections.sort(spots);
 	}
 	
 	
@@ -149,15 +221,60 @@ public class Sudoku {
 	 * Solves the puzzle, invoking the underlying recursive search.
 	 */
 	public int solve() {
-		return 0; // YOUR CODE HERE
+		long startTime = System.currentTimeMillis();
+		backtracking(0);
+		codeTime = System.currentTimeMillis() - startTime;
+		return numSolutions;
 	}
-	
+
+	private void backtracking(int index){
+		if(numSolutions >= MAX_SOLUTIONS){
+			return;
+		}
+		if(index == spots.size()){
+			numSolutions++;
+			rememberSolution();
+			return;
+		}
+		Spot current = spots.get(index);
+
+		HashSet<Integer> validSpots = current.validCombinations();
+
+		for(int value : validSpots){
+			current.set(value);
+
+			backtracking(index + 1);
+			current.set(0);
+		}
+	}
+	private void rememberSolution(){
+		if(numSolutions == 1){
+			for(int i = 0; i < SIZE; i++){
+				for(int j = 0; j < SIZE;j++){
+					sudokuSolution[i][j] = matrix[i][j];
+				}
+			}
+		}
+	}
 	public String getSolutionText() {
-		return ""; // YOUR CODE HERE
+		return gridToString();
 	}
-	
+
+	public String gridToString() {
+		StringBuilder answer = new StringBuilder();
+		for(int i = 0; i < SIZE;i++ ){
+			for(int j = 0; j < SIZE ;j++){
+				answer.append(sudokuSolution[i][j]);
+				answer.append(" ");
+			}
+			if(i != SIZE - 1)
+			answer.append("\n");
+		}
+		return answer.toString();
+	}
+
 	public long getElapsed() {
-		return 0; // YOUR CODE HERE
+		return codeTime;
 	}
 
 }
