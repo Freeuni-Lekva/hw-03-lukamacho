@@ -1,9 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
-
 import java.awt.*;
-import java.awt.event.*;
 
 
  public class SudokuFrame extends JFrame {
