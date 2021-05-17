@@ -68,15 +68,14 @@ import java.awt.*;
 
 	 private void writeSolution() {
 		 String result ="";
-
 		 try{
 		 	Sudoku sudoku = new Sudoku(Sudoku.textToGrid(puzzleText.getText()));
 		 	int solutions = sudoku.solve();
 		 	if(solutions>0){
 		 		result = sudoku.getSolutionText();
 		 		result += "\n";
-		 		result += solutions + "solutions \n";
-		 		result += "Elapsed: " + sudoku.getElapsed() + "ms \n";
+		 		result += (solutions + "solutions \n");
+		 		result += ("Elapsed: " + sudoku.getElapsed() + "ms \n");
 			}
 		 }catch(Exception exception){
 				result = "You have entered illegal formatted string";
@@ -92,7 +91,9 @@ import java.awt.*;
 		// to ignore the exception.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) { }
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
+		}
 		
 		SudokuFrame frame = new SudokuFrame();
 		frame.setVisible(true);

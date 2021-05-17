@@ -91,8 +91,8 @@ public class Sudoku {
 			for(int i = 0; i < SIZE; i++){
 				answer.remove(matrix[i][y]);
 			}
-			int upperLeftX = (x / 3) * 3;
-			int upperLeftY = (y / 3) * 3;
+			int upperLeftX = (x / PART) * PART;
+			int upperLeftY = (y / PART) * PART;
 
 			for(int i = upperLeftX; i < upperLeftX + 3;i++){
 				for(int j = upperLeftY; j< upperLeftY + 3;j++){
